@@ -1,0 +1,4 @@
+output/*.png
+
+# venv
+python_text/
