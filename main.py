@@ -38,7 +38,7 @@ def img_add_msg (img, message, width, font_family,font_size, line_spacing, lette
       x_text = text_position["x"]["start"]
     # 文字間隔を制御しながら描画
     for char in line:
-      draw.text((x_text, y_text), char, font=font, fill=(89, 222, 255, 0))
+      draw.text((x_text, y_text), char, font=font, fill=(color["B"], color["G"], color["R"], 0))
       x_text += draw.textlength(char, font=font) + letter_spacing
     y_text += draw.textlength("あ", font=font) + line_spacing  # 次の行のY座標を計算
 
