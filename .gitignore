@@ -2,3 +2,6 @@ output/*.png
 
 # venv
 python_text/
+
+# private
+service-account.json
