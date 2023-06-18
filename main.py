@@ -2,10 +2,17 @@
 from PIL import Image, ImageFont, ImageDraw
 import cv2
 import numpy as np
-import os
-from config.constant import CONFIG
+import os, glob
+from config.constant import CONFIG, SPREAD_SHEET_ID, SPREAD_SHEET_WORK_SHEET_ARTICLE_NAME
 from types_custom.types import Color, TextPosition
+from lib.gspreadsheet.gspreadsheet import get_values_spreadsheet
 
+CURRENT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
+
+def initialize_output_directory():
+  # Delete all .txt files in the ./posts/ folder
+  for img_file in glob.glob(os.path.abspath(f"{CURRENT_DIR_PATH}/output/*.png")):
+    os.remove(img_file)  
 
 def img_add_msg (img, message, width, font_family,font_size, line_spacing, letter_spacing, text_position: TextPosition, color: Color, align="center"):  
   font_path = os.path.abspath(f"./fonts/{font_family}")
@@ -44,26 +51,37 @@ def img_add_msg (img, message, width, font_family,font_size, line_spacing, lette
 
   img = np.array(img)
   return img
-
+rows = get_values_spreadsheet(SPREAD_SHEET_ID,SPREAD_SHEET_WORK_SHEET_ARTICLE_NAME)
 key = "001"
 config = CONFIG[key]
 
-img = cv2.imread(os.path.abspath(f"./template/template{key}.png"), 1) # カラー画像読み込み
-message = '「勃起不全の原因には生活週間病がある！予防や改善方法を紹介」' # 画像に入れる文章
+# initialize output directory
+initialize_output_directory()
 
-# 画像に文字を入れる関数を実行
-img = img_add_msg(
-  img, 
-  message, 
-  config["container"]["width"],
-  config["font"]["family"],
-  config["font"]["size"],
-  config["font"]["line_spacing"],  # 行間の設定
-  config["font"]["letter_spacing"],  # 文字間の指定
-  config["position"],
-  config["font"]["color"],
-  config["font"]["text_align"]
-) 
- 
-# 画像を表示させる（何かキーを入力すると終了）
-cv2.imwrite(f"output/output{key}.png", img)
+# message = '「勃起不全の原因には生活週間病がある！予防や改善方法を紹介」' # 画像に入れる文章
+for index, row in enumerate(rows):
+  # Index
+  index_padded = str(index + 1).zfill(3)
+
+  # カラー画像読み込み
+  img = cv2.imread(os.path.abspath(f"{CURRENT_DIR_PATH}/template/template{key}.png"), 1)
+  
+  # Message
+  message = row[0]
+
+  # 画像に文字を入れる関数を実行
+  img = img_add_msg(
+    img, 
+    message, 
+    config["container"]["width"],
+    config["font"]["family"],
+    config["font"]["size"],
+    config["font"]["line_spacing"],  # 行間の設定
+    config["font"]["letter_spacing"],  # 文字間の指定
+    config["position"],
+    config["font"]["color"],
+    config["font"]["text_align"]
+  ) 
+
+  # 画像を表示させる（何かキーを入力すると終了）
+  cv2.imwrite(f"output/output{index_padded}.png", img)  

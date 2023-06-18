@@ -25,3 +25,6 @@ CONFIG = {
     }
   }
 }
+
+SPREAD_SHEET_ID = "1_JLcC6-qbHB1y0CbcaToeQRKk0n5mttu0T-xVZc8mkc"
+SPREAD_SHEET_WORK_SHEET_ARTICLE_NAME = "articles"
