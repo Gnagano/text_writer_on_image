@@ -1,7 +1,14 @@
-output/*.png
+# Mac
+.DS_Store
 
-# venv
-python_text/
+# output
+output/*.png
 
 # private
 service-account.json
+
+# python
+__pycache__/*
+
+# venv
+python_text

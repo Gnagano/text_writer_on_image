@@ -9,22 +9,22 @@ from lib.gspreadsheet.gspreadsheet import get_values_spreadsheet
 
 CURRENT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 
+# Initialization
 def initialize_output_directory():
   # Delete all .txt files in the ./posts/ folder
   for img_file in glob.glob(os.path.abspath(f"{CURRENT_DIR_PATH}/output/*.png")):
     os.remove(img_file)  
 
-def img_add_msg (img, message, width, font_family,font_size, line_spacing, letter_spacing, text_position: TextPosition, color: Color, align="center"):  
-  font_path = os.path.abspath(f"./fonts/{font_family}")
-  font_size = font_size
+def convert_message_to_lines(draw, font_path, font_size, message, width, letter_spacing):
+  # Setup
   font = ImageFont.truetype(font_path, font_size)
-  img = Image.fromarray(img)
-  draw = ImageDraw.Draw(img)
 
-  # 文字列を一文字ずつ描画し、指定のピクセル幅を超えないように制御
+  # Lines
   lines = []
   line = ''
   line_width = 0
+
+  # Calculation
   for char in message:
     char_width = draw.textlength(char, font=font)
     if line_width + char_width + letter_spacing <= width:
@@ -35,7 +35,24 @@ def img_add_msg (img, message, width, font_family,font_size, line_spacing, lette
       line = char
       line_width = char_width + letter_spacing
   lines.append(line)
+  return lines
 
+def img_add_msg (img, message, width, font_family, font_size, line_spacing, letter_spacing, text_position: TextPosition, color: Color, align="center"):  
+  font_path = os.path.abspath(f"{CURRENT_DIR_PATH}/fonts/{font_family}")
+  img = Image.fromarray(img)
+  draw = ImageDraw.Draw(img)
+
+  # 文字列を一文字ずつ描画し、指定のピクセル幅を超えないように制御
+  adjustment_value = 0
+  font_size_adjusted = font_size
+  while True:
+    font_size_adjusted += adjustment_value   
+    lines = convert_message_to_lines(draw, font_path, font_size_adjusted, message, width, letter_spacing)
+    if (len(lines) < 4):
+      break
+    adjustment_value -= 2
+
+  font = ImageFont.truetype(font_path, font_size_adjusted)
   y_text = text_position["y"]["start"]
   for line in lines:
     line_width = draw.textlength(line, font=font) + letter_spacing * (len(line) - 1)
@@ -51,6 +68,7 @@ def img_add_msg (img, message, width, font_family,font_size, line_spacing, lette
 
   img = np.array(img)
   return img
+
 rows = get_values_spreadsheet(SPREAD_SHEET_ID,SPREAD_SHEET_WORK_SHEET_ARTICLE_NAME)
 key = "001"
 config = CONFIG[key]
@@ -58,7 +76,6 @@ config = CONFIG[key]
 # initialize output directory
 initialize_output_directory()
 
-# message = '「勃起不全の原因には生活週間病がある！予防や改善方法を紹介」' # 画像に入れる文章
 for index, row in enumerate(rows):
   # Index
   index_padded = str(index + 1).zfill(3)
@@ -82,6 +99,6 @@ for index, row in enumerate(rows):
     config["font"]["color"],
     config["font"]["text_align"]
   ) 
-
   # 画像を表示させる（何かキーを入力すると終了）
-  cv2.imwrite(f"output/output{index_padded}.png", img)  
+  cv2.imwrite(f"output/output{index_padded}.png", img)
+  

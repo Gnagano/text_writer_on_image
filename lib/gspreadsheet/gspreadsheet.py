@@ -8,8 +8,10 @@ SCOPE_GOOGLE_SPREAD_SHEET = [
   "https://www.googleapis.com/auth/spreadsheets.readonly"
 ]
 
+CURRENT_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
+
 # Path
-path_service_account = os.path.abspath(f"{os.path.dirname(os.path.abspath(__file__))}/credentials/service-account.json")
+path_service_account = os.path.abspath(f"{CURRENT_DIR_PATH}/credentials/service-account.json")
 scopes = SCOPE_GOOGLE_SPREAD_SHEET
 
 def _build_service():
