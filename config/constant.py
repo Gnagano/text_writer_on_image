@@ -22,7 +22,8 @@ CONFIG = {
     },
     "container": {
       "width": 900
-    }
+    },
+    "line": {}
   }
 }
 
