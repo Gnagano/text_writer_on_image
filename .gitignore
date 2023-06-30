@@ -8,8 +8,7 @@ output/*.png
 service-account.json
 
 # python
-__pycache__/*
+__pycache__
 
 # venv
-python_text
-venv
+venv_text_writer_on_image
