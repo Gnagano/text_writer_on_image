@@ -11,5 +11,4 @@ service-account.json
 __pycache__/*
 
 # venv
-python_text
-venv
+venv_text_writer_on_image
