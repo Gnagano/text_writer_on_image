@@ -69,58 +69,62 @@ def img_add_msg (img, message, width, font_family, font_size, line_spacing, lett
   img = np.array(img)
   return img
 
-rows = get_values_spreadsheet(SPREAD_SHEET_ID,SPREAD_SHEET_WORK_SHEET_ARTICLE_NAME)
+def main (): 
+  # Read spread sheet
+  rows = get_values_spreadsheet(SPREAD_SHEET_ID,SPREAD_SHEET_WORK_SHEET_ARTICLE_NAME)
 
-# initialize output directory
-initialize_output_directory()
+  # initialize output directory
+  initialize_output_directory()
 
-# Count rows of spreadsheet
-num_rows = len(rows)
+  # Count rows of spreadsheet
+  num_rows = len(rows)
 
-# Count config keys
-config_keys_count = len(CONFIG.keys())
+  # Count config keys
+  config_keys_count = len(CONFIG.keys())
 
-# Calculate number of output per template
-template_batch_size = int(num_rows / config_keys_count)
+  # Calculate number of output per template
+  template_batch_size = int(num_rows / config_keys_count)
 
-# Template counter
-template_counter = 0
+  # Template counter
+  template_counter = 0
 
-for index, row in enumerate(rows):
+  for index, row in enumerate(rows):
 
-  # Index
-  index_padded = str(index + 1).zfill(3)
+    # Index
+    index_padded = str(index + 1).zfill(3)
 
-  # Check if it's time to switch templates
-  if index % template_batch_size == 0:
-    template_counter += 1
+    # Check if it's time to switch templates
+    if index % template_batch_size == 0:
+      template_counter += 1
 
-  # Determine the template key based on the template counter
-  key = str(template_counter).zfill(3)
+    # Determine the template key based on the template counter
+    key = str(template_counter).zfill(3)
 
-  # Set config for template
-  config = CONFIG[key]
+    # Set config for template
+    config = CONFIG[key]
 
-  # カラー画像読み込み
-  img = cv2.imread(os.path.abspath(f"{CURRENT_DIR_PATH}/template/template{key}.png"), 1)
-  
-  # Message
-  message = row[0]
+    # カラー画像読み込み
+    img = cv2.imread(os.path.abspath(f"{CURRENT_DIR_PATH}/template/template{key}.png"), 1)
+    
+    # Message
+    message = row[0]
 
-  # 画像に文字を入れる関数を実行
-  img = img_add_msg(
-    img, 
-    message, 
-    config["container"]["width"],
-    config["font"]["family"],
-    config["font"]["size"],
-    config["font"]["line_spacing"],  # 行間の設定
-    config["font"]["letter_spacing"],  # 文字間の指定
-    config["line"]["max"],  # 行数の最大値の設定
-    config["position"],
-    config["font"]["color"],
-    config["font"]["text_align"],
-  ) 
-  # 画像を表示させる（何かキーを入力すると終了）
-  cv2.imwrite(f"output/output{index_padded}.png", img)
-  
+    # 画像に文字を入れる関数を実行
+    img = img_add_msg(
+      img, 
+      message, 
+      config["container"]["width"],
+      config["font"]["family"],
+      config["font"]["size"],
+      config["font"]["line_spacing"],  # 行間の設定
+      config["font"]["letter_spacing"],  # 文字間の指定
+      config["line"]["max"],  # 行数の最大値の設定
+      config["position"],
+      config["font"]["color"],
+      config["font"]["text_align"],
+    ) 
+    # 画像を表示させる（何かキーを入力すると終了）
+    cv2.imwrite(f"output/output{index_padded}.png", img)
+    
+if __name__ == "__main__":
+  main()
