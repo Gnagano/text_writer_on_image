@@ -138,6 +138,62 @@ CONFIG = {
     "line": {
       "max": 4
     }
+  },
+  "006": {
+    "font": {
+      "family": "LogoTypeGothic.otf",
+      "size": 80,
+      "line_spacing": 30,
+      "letter_spacing": 15,
+      "text_align": "center",
+      "color": {
+        "R": 115,
+        "G": 115,
+        "B": 115
+      }
+    },
+    "position": {
+      "x": {
+        "start": 680
+      },
+      "y": {
+        "start": 500
+      }
+    },
+    "container": {
+      "width": 900
+    },
+    "line": {
+      "max": 4
+    }
+  },
+  "007": {
+    "font": {
+      "family": "YuMinPr6N-D.otf",
+      "size": 100,
+      "line_spacing": 30,
+      "letter_spacing": 15,
+      "text_align": "center",
+      "color": {
+        "R": 0,
+        "G": 0,
+        "B": 0
+      }
+    },
+    "position": {
+      "x": {
+        "start": 680
+      },
+      "y": {
+        "start": 150
+      }
+    },
+    "container": {
+      "width": 900
+    },
+    "line": {
+      "max": 5
+    }
   }
 }
 
