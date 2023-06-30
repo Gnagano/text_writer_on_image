@@ -83,7 +83,8 @@ def main ():
   config_keys_count = len(CONFIG.keys())
 
   # Calculate number of output per template
-  template_batch_size = int(num_rows / config_keys_count)
+  template_batch_size = num_rows // config_keys_count
+  remainder = num_rows % config_keys_count
 
   # Template counter
   template_counter = 0
@@ -94,8 +95,11 @@ def main ():
     index_padded = str(index + 1).zfill(3)
 
     # Check if it's time to switch templates
-    if index % template_batch_size == 0:
+    if index % template_batch_size == 0 and template_counter < config_keys_count:
       template_counter += 1
+      # check if we're at the last template and have remainder
+      if template_counter == config_keys_count and remainder > 0:
+        template_batch_size += remainder
 
     # Determine the template key based on the template counter
     key = str(template_counter).zfill(3)
