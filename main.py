@@ -15,7 +15,7 @@ def initialize_output_directory():
   for img_file in glob.glob(os.path.abspath(f"{CURRENT_DIR_PATH}/output/*.png")):
     os.remove(img_file)  
 
-def convert_message_to_lines(draw, font_path, font_size, message, width, letter_spacing):
+def convert_message_to_lines(draw, font_path, font_size, message, width, letter_spacing, line_max):
   # Setup
   font = ImageFont.truetype(font_path, font_size)
 
@@ -37,7 +37,7 @@ def convert_message_to_lines(draw, font_path, font_size, message, width, letter_
   lines.append(line)
   return lines
 
-def img_add_msg (img, message, width, font_family, font_size, line_spacing, letter_spacing, text_position: TextPosition, color: Color, align="center"):  
+def img_add_msg (img, message, width, font_family, font_size, line_spacing, letter_spacing, line_max, text_position: TextPosition, color: Color, align="center"):  
   font_path = os.path.abspath(f"{CURRENT_DIR_PATH}/fonts/{font_family}")
   img = Image.fromarray(img)
   draw = ImageDraw.Draw(img)
@@ -47,8 +47,8 @@ def img_add_msg (img, message, width, font_family, font_size, line_spacing, lett
   font_size_adjusted = font_size
   while True:
     font_size_adjusted += adjustment_value   
-    lines = convert_message_to_lines(draw, font_path, font_size_adjusted, message, width, letter_spacing)
-    if (len(lines) < 4):
+    lines = convert_message_to_lines(draw, font_path, font_size_adjusted, message, width, letter_spacing, line_max)
+    if (len(lines) < line_max):
       break
     adjustment_value -= 2
 
@@ -69,36 +69,66 @@ def img_add_msg (img, message, width, font_family, font_size, line_spacing, lett
   img = np.array(img)
   return img
 
-rows = get_values_spreadsheet(SPREAD_SHEET_ID,SPREAD_SHEET_WORK_SHEET_ARTICLE_NAME)
-key = "001"
-config = CONFIG[key]
+def main (): 
+  # Read spread sheet
+  rows = get_values_spreadsheet(SPREAD_SHEET_ID,SPREAD_SHEET_WORK_SHEET_ARTICLE_NAME)
 
-# initialize output directory
-initialize_output_directory()
+  # initialize output directory
+  initialize_output_directory()
 
-for index, row in enumerate(rows):
-  # Index
-  index_padded = str(index + 1).zfill(3)
+  # Count rows of spreadsheet
+  num_rows = len(rows)
 
-  # カラー画像読み込み
-  img = cv2.imread(os.path.abspath(f"{CURRENT_DIR_PATH}/template/template{key}.png"), 1)
-  
-  # Message
-  message = row[0]
+  # Count config keys
+  config_keys_count = len(CONFIG.keys())
 
-  # 画像に文字を入れる関数を実行
-  img = img_add_msg(
-    img, 
-    message, 
-    config["container"]["width"],
-    config["font"]["family"],
-    config["font"]["size"],
-    config["font"]["line_spacing"],  # 行間の設定
-    config["font"]["letter_spacing"],  # 文字間の指定
-    config["position"],
-    config["font"]["color"],
-    config["font"]["text_align"]
-  ) 
-  # 画像を表示させる（何かキーを入力すると終了）
-  cv2.imwrite(f"output/output{index_padded}.png", img)
-  
+  # Calculate number of output per template
+  template_batch_size = num_rows // config_keys_count
+  remainder = num_rows % config_keys_count
+
+  # Template counter
+  template_counter = 0
+
+  for index, row in enumerate(rows):
+
+    # Index
+    index_padded = str(index + 1).zfill(3)
+
+    # Check if it's time to switch templates
+    if index % template_batch_size == 0 and template_counter < config_keys_count:
+      template_counter += 1
+      # check if we're at the last template and have remainder
+      if template_counter == config_keys_count and remainder > 0:
+        template_batch_size += remainder
+
+    # Determine the template key based on the template counter
+    key = str(template_counter).zfill(3)
+
+    # Set config for template
+    config = CONFIG[key]
+
+    # カラー画像読み込み
+    img = cv2.imread(os.path.abspath(f"{CURRENT_DIR_PATH}/template/template{key}.png"), 1)
+    
+    # Message
+    message = row[0]
+
+    # 画像に文字を入れる関数を実行
+    img = img_add_msg(
+      img, 
+      message, 
+      config["container"]["width"],
+      config["font"]["family"],
+      config["font"]["size"],
+      config["font"]["line_spacing"],  # 行間の設定
+      config["font"]["letter_spacing"],  # 文字間の指定
+      config["line"]["max"],  # 行数の最大値の設定
+      config["position"],
+      config["font"]["color"],
+      config["font"]["text_align"],
+    ) 
+    # 画像を表示させる（何かキーを入力すると終了）
+    cv2.imwrite(f"output/output{index_padded}.png", img)
+    
+if __name__ == "__main__":
+  main()
